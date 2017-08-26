@@ -1,0 +1,93 @@
+The following is a quick installation guide. Please see HOWTO.md for more
+detailed information on how to configure your server.
+
+
+TLDR:
+# sudo apt-get install git
+# sudo git clone https://github.com/ruclassic/rucoin-electrum-server
+# sudo apt-get install libleveldb-dev
+# sudo ./configure
+# sudo python ./setup.py install
+# electrum-ruc-server start
+# electrum-ruc-server stop
+
+
+Note: If you want to run the server without installing it on your
+system, just run 'run_electrum_ruc_server"
+
+
+1. Install and run rucoind.
+----------------------------
+
+You will need to run rucoind with the config option txindex=1. If you
+have not previously done so, you may need to reindex the rucoind
+blockchain
+
+Note: you cannot use a ultra-pruning rucoind (forthcoming in 0.9 or
+later).  A full rucoin node is required in order to know for each
+address if it has been used. Pruning occurs only at the level of the
+Electrum database.
+
+
+2. Run the 'configure' script
+---------------------------
+You need to run the script as root:
+
+# sudo ./configure
+
+It will:
+ * create the configuration file in /etc/electrum-ruc.conf
+ * create a user that will run the daemon
+ * optionally, download a fresh database from the Electrum-ruc Foundry.
+
+If you choose not to use the Foundry, your server will have to build
+the database from scratch. This process can take several days. To
+speed it up, it is recommended to locate your database in shared
+memory, in electrum-ruc.conf: path = /run/shm/electrum-ruc_db
+
+Note: The 'configure' script does not configure SSL and IRC. You will
+need to manually edit the configuration file in order to enable SSL on
+your server, and to be visible on IRC.
+
+
+3. Install the python package
+-----------------------------
+
+# sudo python setup.py install
+
+Note: You will need to redo this everytime you pull code from git.
+
+
+4. Using the server
+-------------------
+
+Use 'electrum-ruc-server' to start and stop the server:
+
+# electrum-ruc-server <start|stop|status|getinfo>
+
+The server will write a log file in its database path.
+
+
+5. Add electrum-ruc-server to your system's services
+----------------------------------------------------
+
+If your system supports it, you may add electrum-ruc-server to the
+/etc/init.d directory. This will ensure that the server is started and
+stopped automatically, and that the database is closed safely whenever
+your machine is rebooted.
+
+# ln -s `which electrum-ruc-server` /etc/init.d/electrum-ruc-server
+# update-rc.d electrum-ruc-server defaults
+
+
+
+6. Troubleshooting:
+-------------------
+
+ * if your server or rucoind is killed because is uses too much
+   memory, configure rucoind to limit the number of connections
+
+ * if you see "Too many open files" errors, you may need to increase
+   your user's File Descriptors limit. For this, see
+http://www.cyberciti.biz/faq/linux-increase-the-maximum-number-of-open-files/
+
